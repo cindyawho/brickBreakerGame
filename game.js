@@ -8,6 +8,7 @@ var ballSpeedY = 10;
 
 const PADDLE_WIDTH = 100;
 const PADDLE_THICKNESS = 10;
+const PADDLE_DIST_FROM_EDGE = 60;
 var paddleX = 400;
 
 // Mouse Movement
@@ -37,22 +38,38 @@ function updateAll() {
     drawAll();
 }
 
+function ballReset() {
+    ballX = canvas.width/2;
+    ballY = canvas.height/2;
+}
+
 function moveAll() {
     ballX += ballSpeedX;
     ballY += ballSpeedY;
 
-    if(ballX < 0) {
+    if(ballX < 0) { // left
         ballSpeedX *= -1;
     }
-    if(ballX > canvas.width) {
+    if(ballX > canvas.width) { // right
         ballSpeedX *= -1;
     }
-    if(ballY < 0) {
+    if(ballY < 0) { // top
         ballSpeedY *= -1;
     }
-    if(ballY > canvas.height) {
-        ballSpeedY *= -1;
+    if(ballY > canvas.height) { // bottom
+        ballReset();
     } 
+
+    var paddleTopEdgeY = canvas.height-PADDLE_DIST_FROM_EDGE;
+    var paddleBottomEdgeY = paddleTopEdgeY + PADDLE_THICKNESS;
+    var paddleLeftEdgeX = paddleX;
+    var paddleRightEdgeX = paddleX + PADDLE_WIDTH;
+    if(ballY > paddleTopEdgeY && //below top
+        ballY < paddleBottomEdgeY && //above bottom
+        ballX > paddleLeftEdgeX && //right of left edge
+        ballX < paddleRightEdgeX) { //left of right edge
+            ballSpeedY *= -1;
+        }
 }
 
 function drawAll() {
@@ -60,7 +77,7 @@ function drawAll() {
     
     colorCircle(ballX, ballY, 10, "red"); //draw ball
 
-    colorRect(paddleX, canvas.height - PADDLE_THICKNESS, PADDLE_WIDTH, PADDLE_THICKNESS, "white");
+    colorRect(paddleX, canvas.height - PADDLE_DIST_FROM_EDGE, PADDLE_WIDTH, PADDLE_THICKNESS, "white");
 }
 
 function colorRect(topLeftX, topLeftY, boxWidth, boxHeight, fillColor){
