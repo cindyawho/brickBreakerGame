@@ -63,12 +63,17 @@ function moveAll() {
     var paddleTopEdgeY = canvas.height-PADDLE_DIST_FROM_EDGE;
     var paddleBottomEdgeY = paddleTopEdgeY + PADDLE_THICKNESS;
     var paddleLeftEdgeX = paddleX;
-    var paddleRightEdgeX = paddleX + PADDLE_WIDTH;
+    var paddleRightEdgeX = paddleLeftEdgeX + PADDLE_WIDTH;
     if(ballY > paddleTopEdgeY && //below top
         ballY < paddleBottomEdgeY && //above bottom
         ballX > paddleLeftEdgeX && //right of left edge
         ballX < paddleRightEdgeX) { //left of right edge
+            
             ballSpeedY *= -1;
+            
+            var centerOfPaddleX = paddleX + PADDLE_WIDTH/2;
+            var ballDistFromPaddleCenterX = ballX - centerOfPaddleX;
+            ballSpeedX = ballDistFromPaddleCenterX * 0.35;
         }
 }
 
