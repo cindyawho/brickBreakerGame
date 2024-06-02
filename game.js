@@ -7,11 +7,12 @@ var ballSpeedX = 5;
 var ballSpeedY = 7;
 
 const BRICK_W = 80;
-const BRICK_H = 40;
+const BRICK_H = 20;
 const BRICK_GAP = 2;
 const BRICK_COLS = 10;
-const BRICK_ROWS = 7;
+const BRICK_ROWS = 14;
 var brickGrid = new Array(BRICK_COLS * BRICK_ROWS);
+var bricksLeft = 0;
 
 const PADDLE_WIDTH = 100;
 const PADDLE_THICKNESS = 10;
@@ -31,16 +32,22 @@ function updateMousePos(evt) {
     paddleX = mouseX - PADDLE_WIDTH/2;
 
     //cheat / hack to test ball in any position
-    ballX = mouseX;
-    ballY = mouseY;
-    ballSpeedX = 4;
-    ballSpeedY = -4;
+    // ballX = mouseX;
+    // ballY = mouseY;
+    // ballSpeedX = 4;
+    // ballSpeedY = -4;
 }
 
 // Handle Brick Population
 function brickReset() {
-    for(var i=0; i< BRICK_COLS * BRICK_ROWS; i++) {
+    bricksLeft = 0;
+    var i;
+    for(i = 0; i<3*BRICK_COLS;i++){
+        brickGrid[i] = false;
+    }
+    for(; i< BRICK_COLS * BRICK_ROWS; i++) {
         brickGrid[i] = true;
+        bricksLeft++;
     } // end of for loop
 } // end of brickReset func
 
@@ -55,7 +62,7 @@ window.onload = function() {
     canvas.addEventListener("mousemove", updateMousePos);
 
     brickReset();
-    // ballReset();
+    ballReset();
 }
 
 function updateAll() {
@@ -72,18 +79,30 @@ function ballMove(){
     ballX += ballSpeedX;
     ballY += ballSpeedY;
     
-    if(ballX < 0) { // left
+    if(ballX < 0 && ballSpeedX < 0.0) { // left, fixes wall edge case
         ballSpeedX *= -1;
     }
-    if(ballX > canvas.width) { // right
+    if(ballX > canvas.width && ballSpeedX > 0.0) { // right, fixes wall edge case
         ballSpeedX *= -1;
     }
-    if(ballY < 0) { // top
+    if(ballY < 0  && ballSpeedY < 0.0) { // top
         ballSpeedY *= -1;
     }
     if(ballY > canvas.height) { // bottom
         ballReset();
+        brickReset();
     } 
+}
+
+function isBrickAtColRow(col, row) {
+    if(col >=0 && col < BRICK_COLS && 
+        row >= 0 && row < BRICK_ROWS) {
+        
+        var brickIndexUnderCord = rowColtoArrayIndex(col, row);
+        return brickGrid[brickIndexUnderCord];
+    } else {
+        return false;
+    }
 }
 
 function ballBrickHandling() {
@@ -93,8 +112,13 @@ function ballBrickHandling() {
     if(ballBrickCol>=0 && ballBrickCol < BRICK_COLS && 
         ballBrickRow >= 0 && ballBrickRow < BRICK_ROWS){
     
-        if(brickGrid[brickIndexUnderBall]){
+        if(isBrickAtColRow(ballBrickCol, ballBrickRow)){
             brickGrid[brickIndexUnderBall] = false;
+            bricksLeft--;
+            // console.log(bricksLeft);
+            if(bricksLeft == 0){
+
+            }
 
             var prevBallX = ballX - ballSpeedX;
             var prevBallY = ballY - ballSpeedY;
@@ -103,17 +127,13 @@ function ballBrickHandling() {
 
             var bothTestsFailed = true;
             if(prevBrickCol != ballBrickCol) {
-                var adjBrickSide = rowColtoArrayIndex(prevBrickCol, ballBrickRow);
-                
-                if(brickGrid[adjBrickSide]==false){
+                if(isBrickAtColRow(prevBrickCol, ballBrickRow)==false){
                     ballSpeedX *= -1;
                     bothTestsFailed = false;
                 }
             }
             if(prevBrickRow != ballBrickRow) {
-                var adjBrickTopBot = rowColtoArrayIndex(ballBrickCol, prevBrickRow);
-                
-                if(brickGrid[adjBrickTopBot]==false){
+                if(isBrickAtColRow(prevBrickCol, ballBrickRow)==false){
                     ballSpeedY *= -1;
                     bothTestsFailed = false;
                 }
@@ -144,8 +164,12 @@ function ballPaddleHandling(){
             var centerOfPaddleX = paddleX + PADDLE_WIDTH/2;
             var ballDistFromPaddleCenterX = ballX - centerOfPaddleX;
             ballSpeedX = ballDistFromPaddleCenterX * 0.35;
-    }
-}
+
+            if(bricksLeft == 0) {
+                brickReset();
+            } //out of bricks
+    }//ball center inside paddle
+}// end of ballPaddleHandling
 
 function moveAll() {
     ballMove();
@@ -182,7 +206,7 @@ function drawAll() {
     drawBricks();
 
     
-    colorText(mouseBrickCol+","+mouseBrickRow+":"+brickIndexUnderMouse, mouseX,mouseY, "yellow");
+    // colorText(mouseBrickCol+","+mouseBrickRow+":"+brickIndexUnderMouse, mouseX,mouseY, "yellow");
 
     //showing mouse pointer to disappear bricks
     // if(brickIndexUnderMouse>=0 && brickIndexUnderMouse < BRICK_COLS*BRICK_ROWS){
