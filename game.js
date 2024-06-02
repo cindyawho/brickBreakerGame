@@ -6,6 +6,11 @@ var ballY = 75;
 var ballSpeedX = 5;
 var ballSpeedY = 10;
 
+const BRICK_W = 100;
+const BRICK_H = 50;
+const BRICK_COUNT = 8;
+var brickGrid = new Array(BRICK_COUNT);
+
 const PADDLE_WIDTH = 100;
 const PADDLE_THICKNESS = 10;
 const PADDLE_DIST_FROM_EDGE = 60;
@@ -24,6 +29,18 @@ function updateMousePos(evt) {
     paddleX = mouseX - PADDLE_WIDTH/2;
 }
 
+// Handle Brick Population
+function brickReset() {
+    for(var i=0; i< BRICK_COUNT; i++) {
+        if(Math.random() < 0.5) {
+            brickGrid[i] = true;
+        } else {
+            brickGrid[i]=false;
+        } // end of else (random check)
+        // brickGrid[i] = true;
+    } // end of for loop
+} // end of brickReset func
+
 // Main Game Code
 window.onload = function() {
     canvas = document.getElementById('gameCanvas');
@@ -33,6 +50,8 @@ window.onload = function() {
 
     //move paddle with mouse movement
     canvas.addEventListener("mousemove", updateMousePos);
+
+    brickReset();
 }
 
 function updateAll() {
@@ -66,11 +85,8 @@ function moveAll() {
     var paddleBottomEdgeY = paddleTopEdgeY + PADDLE_THICKNESS;
     var paddleLeftEdgeX = paddleX;
     var paddleRightEdgeX = paddleLeftEdgeX + PADDLE_WIDTH;
-    // console.log(ballY + " T:" + paddleTopEdgeY + " B:" +paddleBottomEdgeY )
-    // if(ballY > paddleTopEdgeY && ballY < paddleBottomEdgeY)
-    //     {
-    //         console.log(ballY + " T:" + paddleTopEdgeY + " B:" +paddleBottomEdgeY )
-    //     }
+
+    // paddle collision logic
     if(ballY >= paddleTopEdgeY && //below top
         ballY <= paddleBottomEdgeY && //above bottom
         ballX >= paddleLeftEdgeX && //right of left edge
@@ -84,12 +100,22 @@ function moveAll() {
         }
 }
 
+function drawBricks() {
+    for(var i = 0; i < BRICK_COUNT; i++){
+        if(brickGrid[i]) {
+            colorRect(BRICK_W*i, 0, BRICK_W-2,BRICK_H, "blue");
+        } // end of is this brick here
+    } //end of for each brick
+} // end of drawBricks
+
 function drawAll() {
     colorRect(0, 0, canvas.width, canvas.height, "black"); //clear screen
     
     colorCircle(ballX, ballY, 10, "white"); //draw ball
 
     colorRect(paddleX, canvas.height - PADDLE_DIST_FROM_EDGE, PADDLE_WIDTH, PADDLE_THICKNESS, "white");
+
+    drawBricks();
 
     colorText(Math.floor(mouseX)+","+Math.floor(mouseY), mouseX,mouseY, "yellow");
 }
