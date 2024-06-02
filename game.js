@@ -62,10 +62,10 @@ function ballReset() {
     ballY = canvas.height/2;
 }
 
-function moveAll() {
+function ballMove(){
     ballX += ballSpeedX;
     ballY += ballSpeedY;
-
+    
     if(ballX < 0) { // left
         ballSpeedX *= -1;
     }
@@ -78,24 +78,28 @@ function moveAll() {
     if(ballY > canvas.height) { // bottom
         ballReset();
     } 
+}
 
+function ballBrickHandling() {
     var ballBrickCol = Math.floor(ballX/ BRICK_W);
     var ballBrickRow = Math.floor(ballY/BRICK_H);
     var brickIndexUnderBall = rowColtoArrayIndex(ballBrickCol, ballBrickRow);
     if(ballBrickCol>=0 && ballBrickCol < BRICK_COLS && 
         ballBrickRow >= 0 && ballBrickRow < BRICK_ROWS){
-
+    
         if(brickGrid[brickIndexUnderBall]){
             brickGrid[brickIndexUnderBall] = false;
             ballSpeedY *= -1;
-        }
-    }
-    
+        } // end of brick gounf
+    } // end of brick row and col
+} // end of ballBrickHandling func
+
+function ballPaddleHandling(){
     var paddleTopEdgeY = canvas.height-PADDLE_DIST_FROM_EDGE;
     var paddleBottomEdgeY = paddleTopEdgeY + PADDLE_THICKNESS;
     var paddleLeftEdgeX = paddleX;
     var paddleRightEdgeX = paddleLeftEdgeX + PADDLE_WIDTH;
-
+    
     // paddle collision logic
     if(ballY >= paddleTopEdgeY && //below top
         ballY <= paddleBottomEdgeY && //above bottom
@@ -107,7 +111,15 @@ function moveAll() {
             var centerOfPaddleX = paddleX + PADDLE_WIDTH/2;
             var ballDistFromPaddleCenterX = ballX - centerOfPaddleX;
             ballSpeedX = ballDistFromPaddleCenterX * 0.35;
-        }
+    }
+}
+
+function moveAll() {
+    ballMove();
+    
+    ballBrickHandling();
+
+    ballPaddleHandling();
 }
 
 function rowColtoArrayIndex(col, row) {
