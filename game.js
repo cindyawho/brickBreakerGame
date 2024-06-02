@@ -4,13 +4,13 @@ var framesPerSecond = 30;
 var ballX = 75;
 var ballY = 75;
 var ballSpeedX = 5;
-var ballSpeedY = 10;
+var ballSpeedY = 7;
 
 const BRICK_W = 80;
-const BRICK_H = 20;
+const BRICK_H = 40;
 const BRICK_GAP = 2;
 const BRICK_COLS = 10;
-const BRICK_ROWS = 14;
+const BRICK_ROWS = 7;
 var brickGrid = new Array(BRICK_COLS * BRICK_ROWS);
 
 const PADDLE_WIDTH = 100;
@@ -29,6 +29,12 @@ function updateMousePos(evt) {
     mouseY = evt.clientY - rect.top - root.scrollTop;
     
     paddleX = mouseX - PADDLE_WIDTH/2;
+
+    //cheat / hack to test ball in any position
+    ballX = mouseX;
+    ballY = mouseY;
+    ballSpeedX = 4;
+    ballSpeedY = -4;
 }
 
 // Handle Brick Population
@@ -89,7 +95,34 @@ function ballBrickHandling() {
     
         if(brickGrid[brickIndexUnderBall]){
             brickGrid[brickIndexUnderBall] = false;
-            ballSpeedY *= -1;
+
+            var prevBallX = ballX - ballSpeedX;
+            var prevBallY = ballY - ballSpeedY;
+            var prevBrickCol = Math.floor(prevBallX / BRICK_W);
+            var prevBrickRow = Math.floor(prevBallY / BRICK_H);
+
+            var bothTestsFailed = true;
+            if(prevBrickCol != ballBrickCol) {
+                var adjBrickSide = rowColtoArrayIndex(prevBrickCol, ballBrickRow);
+                
+                if(brickGrid[adjBrickSide]==false){
+                    ballSpeedX *= -1;
+                    bothTestsFailed = false;
+                }
+            }
+            if(prevBrickRow != ballBrickRow) {
+                var adjBrickTopBot = rowColtoArrayIndex(ballBrickCol, prevBrickRow);
+                
+                if(brickGrid[adjBrickTopBot]==false){
+                    ballSpeedY *= -1;
+                    bothTestsFailed = false;
+                }
+            }
+
+            if(bothTestsFailed) { //armpit case, prevents ball from going through corners
+                ballSpeedX *= -1;
+                ballSpeedY *= -1;
+            }
         } // end of brick gounf
     } // end of brick row and col
 } // end of ballBrickHandling func
