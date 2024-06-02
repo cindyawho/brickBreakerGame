@@ -8,8 +8,10 @@ var ballSpeedY = 10;
 
 const BRICK_W = 100;
 const BRICK_H = 50;
-const BRICK_COUNT = 8;
-var brickGrid = new Array(BRICK_COUNT);
+const BRICK_GAP = 2;
+const BRICK_COLS = 8;
+const BRICK_ROWS = 3;
+var brickGrid = new Array(BRICK_COLS);
 
 const PADDLE_WIDTH = 100;
 const PADDLE_THICKNESS = 10;
@@ -31,13 +33,13 @@ function updateMousePos(evt) {
 
 // Handle Brick Population
 function brickReset() {
-    for(var i=0; i< BRICK_COUNT; i++) {
-        if(Math.random() < 0.5) {
-            brickGrid[i] = true;
-        } else {
-            brickGrid[i]=false;
-        } // end of else (random check)
-        // brickGrid[i] = true;
+    for(var i=0; i< BRICK_COLS; i++) {
+        // if(Math.random() < 0.5) {
+        //     brickGrid[i] = true;
+        // } else {
+        //     brickGrid[i]=false;
+        // } // end of else (random check)
+        brickGrid[i] = true;
     } // end of for loop
 } // end of brickReset func
 
@@ -101,11 +103,13 @@ function moveAll() {
 }
 
 function drawBricks() {
-    for(var i = 0; i < BRICK_COUNT; i++){
-        if(brickGrid[i]) {
-            colorRect(BRICK_W*i, 0, BRICK_W-2,BRICK_H, "blue");
-        } // end of is this brick here
-    } //end of for each brick
+    for(var eachRow = 0; eachRow < BRICK_ROWS; eachRow++){
+        for(var eachCol = 0; eachCol < BRICK_COLS; eachCol++){
+            if(brickGrid[eachCol]) {
+                colorRect(BRICK_W*eachCol, BRICK_H*eachRow, BRICK_W-BRICK_GAP,BRICK_H - BRICK_GAP, "blue");
+            } // end of is this brick here
+        } //end of for each brick        
+    }
 } // end of drawBricks
 
 function drawAll() {
@@ -117,7 +121,9 @@ function drawAll() {
 
     drawBricks();
 
-    colorText(Math.floor(mouseX)+","+Math.floor(mouseY), mouseX,mouseY, "yellow");
+    var mouseBrickCol = mouseX/ BRICK_W;
+    var mouseBrickRow = mouseY/BRICK_H;
+    colorText(mouseBrickCol.toFixed(2)+","+mouseBrickRow.toFixed(2), mouseX,mouseY, "yellow");
 }
 
 function colorRect(topLeftX, topLeftY, boxWidth, boxHeight, fillColor){
