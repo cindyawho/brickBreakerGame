@@ -59,15 +59,20 @@ function moveAll() {
     if(ballY > canvas.height) { // bottom
         ballReset();
     } 
-
+    
     var paddleTopEdgeY = canvas.height-PADDLE_DIST_FROM_EDGE;
     var paddleBottomEdgeY = paddleTopEdgeY + PADDLE_THICKNESS;
     var paddleLeftEdgeX = paddleX;
     var paddleRightEdgeX = paddleLeftEdgeX + PADDLE_WIDTH;
-    if(ballY > paddleTopEdgeY && //below top
-        ballY < paddleBottomEdgeY && //above bottom
-        ballX > paddleLeftEdgeX && //right of left edge
-        ballX < paddleRightEdgeX) { //left of right edge
+    // console.log(ballY + " T:" + paddleTopEdgeY + " B:" +paddleBottomEdgeY )
+    // if(ballY > paddleTopEdgeY && ballY < paddleBottomEdgeY)
+    //     {
+    //         console.log(ballY + " T:" + paddleTopEdgeY + " B:" +paddleBottomEdgeY )
+    //     }
+    if(ballY >= paddleTopEdgeY && //below top
+        ballY <= paddleBottomEdgeY && //above bottom
+        ballX >= paddleLeftEdgeX && //right of left edge
+        ballX <= paddleRightEdgeX) { //left of right edge
             
             ballSpeedY *= -1;
             
